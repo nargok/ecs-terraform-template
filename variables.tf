@@ -12,6 +12,10 @@ variable "ecs_container_insights" {}
 
 variable "ecs_log_retention_in_days" {}
 
+variable "ecs_cpu" {}
+
+variable "ecs_memory" {}
+
 locals {
   name_env = "${var.name}-${var.env}"
 }

@@ -40,3 +40,7 @@ data "aws_ecs_cluster" "this" {
   cluster_name = var.cluster_name
 }
 
+resource "aws_ecs_service" "this" {
+  name = var.name
+  cluster = data.aws_ecs_cluster.this.id
+}
