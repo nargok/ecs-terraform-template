@@ -20,3 +20,10 @@ variable "task_role_arn" {}
 
 variable "cluster_name" {}
 
+variable "min_capacity" {}
+
+variable "target_group_arn" {}
+
+variable "subnets" {}
+
+variable "security_group" {}

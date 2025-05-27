@@ -43,4 +43,24 @@ data "aws_ecs_cluster" "this" {
 resource "aws_ecs_service" "this" {
   name = var.name
   cluster = data.aws_ecs_cluster.this.id
+  task_definition = aws_ecs_task_definition.this.arn
+  desired_count = var.min_capacity
+  launch_type = "FARGATE"
+  health_check_grace_period_seconds = 360
+  load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name = var.name
+    container_port = var.port
+  }
+  network_configuration {
+    subnets = var.subnets
+    security_groups = [var.security_group]
+  }
+  lifecycle {
+    ignore_changes = [
+      desired_count,
+      task_definition
+    ]
+  }
 }
+

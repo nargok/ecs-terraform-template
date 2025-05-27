@@ -26,7 +26,11 @@ module "ecs_service" {
   task_role_arn = aws_iam_role.ecs_task.arn
   cpu = var.ecs_cpu
   memory = var.ecs_memory
+  min_capacity = each.value.min_capacity
   port = each.value.port
   secrets = local.secrets
+  target_group_arn = each.value.target_group_arn
+  subnets = [for s in aws_subnet.private : s.id]
+  security_group = each.value.security_group
 }
 
