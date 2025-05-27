@@ -27,3 +27,9 @@ variable "target_group_arn" {}
 variable "subnets" {}
 
 variable "security_group" {}
+
+variable "autoscaling" {}
+
+variable "max_capacity" {}
+
+variable "min_capacity" {}

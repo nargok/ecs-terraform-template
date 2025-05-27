@@ -64,3 +64,30 @@ resource "aws_ecs_service" "this" {
   }
 }
 
+resource "aws_appautoscaling_target" "ecs_target" {
+  count = var.autoscaling ? 1 : 0
+  max_capacity = var.max_capacity
+  min_capacity = var.min_capacity
+  resource_id = "service/${data.aws_ecs_cluster.this.cluster_name}/${aws_ecs_service.this.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy" {
+  count = var.autoscaling ? 1 : 0
+  name = "target-tracking"
+  policy_type = "TargetTrackingScaling"
+  resource_id = aws_appautoscaling_target.ecs_target[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target[0].scalable_dimension
+  service_namespace = aws_appautoscaling_target.ecs_target[0].service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value = 50
+    scale_in_cooldown = 600
+    scale_out_cooldown = 240
+    predefined_metric_specification {
+      perdefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+  }
+}
+
