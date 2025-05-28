@@ -16,6 +16,8 @@ variable "ecs_cpu" {}
 
 variable "ecs_memory" {}
 
+variable "spring_profile" {}
+
 locals {
   name_env = "${var.name}-${var.env}"
 }

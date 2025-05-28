@@ -1,6 +1,10 @@
 locals {
   _env_vars = {
+    db_host = aws_rds_cluster.this.endpoint
+    elasticache_host = aws_elasticache_replication_group.this.primary_endpoint_address
+    spring_profiles_active = var.spring_profile
     tz = "Asia/Tokyo"
+    aws_region = var.region
   }
   _secrets = {
     db_user = aws_ssm_parameter.db_username.arn
@@ -9,8 +13,22 @@ locals {
   env_vars = [for k, v in local._env_vars : { name = upper(k), value = v }]
   secrets = [for k, v in local._secrets : { name = upper(k), valueFrom = v }]
   services = {
-    web = {}
-    batch = {}
+    web = {
+      autoscaling = false
+      min_capacity = 1
+      max_capacity = 1
+      port = 18081
+      target_group_arn = aws_lb_target_group.web.arn
+      security_group = aws_security_group.web.id
+    }
+    batch = {
+      autoscaling = false
+      min_capacity = 1
+      max_capacity = 1
+      port = 8081
+      target_group_arn = aws_lb_target_group.batch.arn
+      security_group = aws_security_group.batch.id
+    }
   }
 }
 
@@ -27,10 +45,12 @@ module "ecs_service" {
   cpu = var.ecs_cpu
   memory = var.ecs_memory
   min_capacity = each.value.min_capacity
+  max_capacity = each.value.max_capacity
   port = each.value.port
   secrets = local.secrets
   target_group_arn = each.value.target_group_arn
   subnets = [for s in aws_subnet.private : s.id]
   security_group = each.value.security_group
+  autoscaling = each.value.autoscaling
 }
 
